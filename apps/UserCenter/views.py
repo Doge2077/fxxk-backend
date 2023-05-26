@@ -4,6 +4,7 @@ import re
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from UserCenter import models
 from UserCenter.settings import *
 
 
@@ -44,8 +45,10 @@ def hash_token(Person):
     Hash_tool.update(hash_code.encode('utf-8'))
     return Hash_tool.hexdigest()
 
+
 def check_has(hash_code):
-    pass
+    return models.Worker.objects.filter(hash_code=hash_code).first()
+
 
 class loadUserInfo(APIView):
     def post(self, request):
@@ -135,7 +138,12 @@ class loadUserInfo(APIView):
                     anaPerson["self"] += "，" if anaPerson["self"][-1] not in Noneed else ""
 
         hash_code = hash_token(Person)
-
+        Worker = check_has(hash_code)
+        if Worker:
+            anaPerson["id"] = Worker.wid
+        else:
+            models.Worker.objects.create(hash_code=hash_code)
+            anaPerson["id"] = check_has(hash_code).wid
 
         return Response(
             {
