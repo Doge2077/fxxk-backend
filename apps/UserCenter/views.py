@@ -44,6 +44,8 @@ def hash_token(Person):
     Hash_tool.update(hash_code.encode('utf-8'))
     return Hash_tool.hexdigest()
 
+def check_has(hash_code):
+    pass
 
 class loadUserInfo(APIView):
     def post(self, request):
@@ -132,8 +134,7 @@ class loadUserInfo(APIView):
                     anaPerson["self"] += str
                     anaPerson["self"] += "，" if anaPerson["self"][-1] not in Noneed else ""
 
-        Person["hash_code"] = hash_token(Person)
-
+        hash_code = hash_token(Person)
 
 
         return Response(
