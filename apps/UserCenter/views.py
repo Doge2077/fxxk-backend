@@ -1,3 +1,4 @@
+import hashlib
 import re
 
 from rest_framework.response import Response
@@ -17,6 +18,7 @@ def check(str, tags):
         return True
     return False
 
+
 def birthdata(str):
     if re.match(regex, str):
         return True
@@ -30,9 +32,22 @@ def idx(str):
     return -1
 
 
+def hash_token(Person):
+    hash_code = ""
+    hash_code += Person["worker_name"] \
+                 + Person["sex"] \
+                 + Person["age"] \
+                 + Person["phone_number"] \
+                 + Person["e_mail"] \
+                 + Person["statue"]
+    Hash_tool = hashlib.sha256()
+    Hash_tool.update(hash_code.encode('utf-8'))
+    return Hash_tool.hexdigest()
+
+
 class loadUserInfo(APIView):
     def post(self, request):
-
+        # Worker 字段字典
         Person = {
             "view": 2,
             "worker_name": "",
@@ -45,22 +60,24 @@ class loadUserInfo(APIView):
             "edu_level": "",
             "work_year": 0,
             "statue": "群众",
+            "hash_code": ""
         }
-
+        # 用于分析的字段
         anaPerson = {
             "id": 0,
             "skills": "",
             "jobHunt": "",
             "self": "",
-            "award": "",
+            "award": ""
         }
 
         param = request.data
+        # 匹配字段
         for i in range(0, len(param)):
             str = param[i]["words"]
-            if i == 0 :
+            if i == 0:
                 Person["worker_name"] = str
-            else :
+            else:
                 flag = idx(str)
                 res = str[flag:]
                 no_match = True
@@ -92,6 +109,8 @@ class loadUserInfo(APIView):
                         for tag in Edu_level:
                             if tag in str:
                                 str = tag
+                                if str == "专科":
+                                    str = "大专"
                                 break
                     Person["edu_level"] = str
                     no_match = False
@@ -105,13 +124,18 @@ class loadUserInfo(APIView):
                 if check(str, JobHunt):
                     anaPerson["jobHunt"] = str if flag == -1 else res
                     no_match = False
-                if check(str, Award) and not check(str, Skills):
+                if check(str, Award) and not check(str, Skills) and not check(str, Action):
                     anaPerson["award"] += str if flag == -1 else res
-                    anaPerson["award"] += "，" if anaPerson["award"][-1] not in {':', '：'} else ""
+                    anaPerson["award"] += "，" if anaPerson["award"][-1] not in Flag else ""
                     no_match = False
-                if no_match and len(str) >= 3 and check(str, {":", "："}) == False:
+                if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
                     anaPerson["self"] += str
-                    anaPerson["self"] += "，" if anaPerson["self"][-1] not in {':', '：'} else ""
+                    anaPerson["self"] += "，" if anaPerson["self"][-1] not in Noneed else ""
+
+        Person["hash_code"] = hash_token(Person)
+
+
+
         return Response(
             {
                 "Person": Person,
