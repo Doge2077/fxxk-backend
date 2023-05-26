@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from UserCenter import models
+from UserCenter.serializer import Worker_Serializer
 from UserCenter.settings import *
 
 
@@ -82,67 +83,79 @@ class loadUserInfo(APIView):
             str = param[i]["words"]
             if i == 0:
                 Person["worker_name"] = str
-            else:
-                flag = idx(str)
-                res = str[flag:]
-                no_match = True
-                if check(str, Names) and len(res) <= 4 and len(str) <= 7 and not check(str, Edu_school):
-                    Person["worker_name"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Sex):
-                    Person["sex"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Age) or birthdata(str):
-                    Person["age"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Phone_number):
-                    if len(str) >= 11:
-                        Person["phone_number"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, E_mail):
-                    Person["e_mail"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Location) and not check(str, Award) and len(str) <= 13:
-                    Person["location"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Edu_school) and len(str) <= 13:
-                    Person["edu_school"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Edu_level):
-                    str = str if flag == -1 else res
-                    if len(str) > 2:
-                        for tag in Edu_level:
-                            if tag in str:
-                                str = tag
-                                if str == "专科":
-                                    str = "大专"
-                                break
-                    Person["edu_level"] = str
-                    no_match = False
-                if check(str, Statue):
-                    Person["statue"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Skills) and not check(str, Award):
-                    anaPerson["skills"] += str if flag == -1 else res
-                    anaPerson["skills"] += "，" if anaPerson["skills"][-1] not in {':', '：'} else ""
-                    no_match = False
-                if check(str, JobHunt):
-                    anaPerson["jobHunt"] = str if flag == -1 else res
-                    no_match = False
-                if check(str, Award) and not check(str, Skills) and not check(str, Action):
-                    anaPerson["award"] += str if flag == -1 else res
-                    anaPerson["award"] += "，" if anaPerson["award"][-1] not in Flag else ""
-                    no_match = False
-                if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
-                    anaPerson["self"] += str
-                    anaPerson["self"] += "，" if anaPerson["self"][-1] not in Noneed else ""
+            flag = idx(str)
+            res = str[flag:]
+            no_match = True
+            if check(str, Names) and len(res) <= 4 and len(str) <= 7 and not check(str, Noname):
+                Person["worker_name"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Sex):
+                Person["sex"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Age) or birthdata(str):
+                Person["age"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Phone_number):
+                if len(str) >= 11:
+                    Person["phone_number"] = str if flag == -1 else res
+                no_match = False
+            if check(str, E_mail):
+                Person["e_mail"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Location) and not check(str, Edu_school | Award) and len(str) <= 13:
+                Person["location"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Edu_school) and len(str) <= 13:
+                Person["edu_school"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Edu_level):
+                str = str if flag == -1 else res
+                if len(str) > 2:
+                    for tag in Edu_level:
+                        if tag in str:
+                            str = tag
+                            if str == "专科":
+                                str = "大专"
+                            break
+                Person["edu_level"] = str
+                no_match = False
+            if check(str, Statue):
+                str = str if flag == -1 else res
+                if len(str) > 2:
+                    for tag in Statue:
+                        if tag in str:
+                            str = tag
+                            break
+                Person["statue"] = str
+                no_match = False
+            if check(str, Skills) and not check(str, Award):
+                anaPerson["skills"] += str if flag == -1 else res
+                anaPerson["skills"] += "，" if anaPerson["skills"][-1] not in {':', '：'} else ""
+                no_match = False
+            if check(str, JobHunt):
+                anaPerson["jobHunt"] = str if flag == -1 else res
+                no_match = False
+            if check(str, Award) and not check(str, Skills | Action):
+                anaPerson["award"] += str if flag == -1 else res
+                anaPerson["award"] += "，" if anaPerson["award"][-1] not in Flag else ""
+                no_match = False
+            if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
+                anaPerson["self"] += str
+                anaPerson["self"] += "，" if anaPerson["self"][-1] not in Noneed else ""
 
+        # 计算该 worker 的 hash_code
         hash_code = hash_token(Person)
+        # 查询是否存在 Worker
         Worker = check_has(hash_code)
         if Worker:
+            Person["hash_code"] = hash_code
             anaPerson["id"] = Worker.wid
         else:
-            models.Worker.objects.create(hash_code=hash_code)
+            Person["hash_code"] = hash_code
+            # 将 Person 序列化
+            Worker = Worker_Serializer(Person)
+            # 插入一条 Worker 记录
+            models.Worker.objects.create(**Worker.data)
             anaPerson["id"] = check_has(hash_code).wid
 
         return Response(
