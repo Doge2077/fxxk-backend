@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from UserCenter import models
-from UserCenter.serializer import Worker_Serializer
+from UserCenter.serializer import Worker_Serializer, User_Serializer
 from UserCenter.settings import *
 
 
@@ -34,6 +34,12 @@ def idx(str):
     return -1
 
 
+def hash_user(str):
+    Hash_tool = hashlib.sha256()
+    Hash_tool.update(str.encode('utf-8'))
+    return Hash_tool.hexdigest()
+
+
 def hash_token(Person):
     hash_code = ""
     hash_code += Person["worker_name"] \
@@ -42,20 +48,46 @@ def hash_token(Person):
                  + Person["phone_number"] \
                  + Person["e_mail"] \
                  + Person["statue"]
-    Hash_tool = hashlib.sha256()
-    Hash_tool.update(hash_code.encode('utf-8'))
-    return Hash_tool.hexdigest()
+    return hash_user(hash_code)
 
 
 def check_has(hash_code):
     return models.Worker.objects.filter(hash_code=hash_code).first()
 
 
+def check_registered(hash_code):
+    return models.User.objects.filter(hash_code=hash_code).first()
+
+
+class registerUser(APIView):
+    def post(self, request):
+        username = request.data['username']
+        password = request.data['password']
+        hash_code = hash_user(username + password)
+        Person = {
+            "hash_code": ""
+        }
+
+        User = check_registered(hash_code)
+        if User:
+            return Response({
+                "error": "registered"
+            })
+        else:
+            Person["hash_code"] = hash_code
+            User = User_Serializer(Person)
+            models.User.objects.create(**User.data)
+            uid = check_registered(hash_code).uid
+            print(uid)
+            return Response({
+               "success": "finished"
+            })
+
+
 class loadUserInfo(APIView):
     def post(self, request):
         # Worker 字段字典
         Person = {
-            "view": 2,
             "worker_name": "",
             "sex": "男",
             "age": "",

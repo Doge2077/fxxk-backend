@@ -1,9 +1,26 @@
 from django.db import models
 
 
+class User(models.Model):
+    uid = models.AutoField(primary_key=True)
+    hash_code = models.CharField(max_length=255, null=True)
+
+    class Meta:
+        app_label = 'UserCenter'
+        db_table = 'user'
+        ordering = ['uid']
+        unique_together = ('hash_code',)
+        indexes = [
+            models.Index(fields=['uid']),
+            models.Index(fields=['hash_code']),
+        ]
+
+    def __str__(self):
+        return self.hash_code
+
+
 class Worker(models.Model):
     wid = models.AutoField(primary_key=True)
-    view = models.IntegerField(null=False)
     worker_name = models.CharField(max_length=255, null=False)
     sex = models.CharField(max_length=255, null=True)
     age = models.CharField(max_length=255, null=True)
@@ -17,7 +34,6 @@ class Worker(models.Model):
     urls = models.URLField(max_length=255, null=True)
     url_format = models.CharField(max_length=255, null=True)
     hash_code = models.CharField(max_length=255, null=True)
-
 
     class Meta:
         app_label = 'UserCenter'
