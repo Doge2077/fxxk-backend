@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from UserCenter import models
-from UserCenter.serializer import Worker_Serializer, User_Serializer
+from UserCenter.serializer import Worker_Serializer
 from UserCenter.settings import *
 
 
@@ -57,31 +57,6 @@ def check_has(hash_code):
 
 def check_registered(hash_code):
     return models.User.objects.filter(hash_code=hash_code).first()
-
-
-class registerUser(APIView):
-    def post(self, request):
-        username = request.data['username']
-        password = request.data['password']
-        hash_code = hash_user(username + password)
-        Person = {
-            "hash_code": ""
-        }
-
-        User = check_registered(hash_code)
-        if User:
-            return Response({
-                "error": "registered"
-            })
-        else:
-            Person["hash_code"] = hash_code
-            User = User_Serializer(Person)
-            models.User.objects.create(**User.data)
-            uid = check_registered(hash_code).uid
-            print(uid)
-            return Response({
-               "success": "finished"
-            })
 
 
 class loadUserInfo(APIView):
