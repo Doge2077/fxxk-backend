@@ -20,7 +20,7 @@ class User(models.Model):
 
 
 class Worker(models.Model):
-    wid = models.AutoField(primary_key=True)
+    uid = models.AutoField(primary_key=True)
     worker_name = models.CharField(max_length=255, null=False)
     sex = models.CharField(max_length=255, null=True)
     age = models.CharField(max_length=255, null=True)
@@ -38,10 +38,10 @@ class Worker(models.Model):
     class Meta:
         app_label = 'UserCenter'
         db_table = 'worker'  # 指定数据库中的表名
-        ordering = ['wid']  # 排序方式按照 wid 正序
+        ordering = ['uid']  # 排序方式按照 wid 正序
         unique_together = ('hash_code',)  # 设置 hash_code 字段的值必须唯一
         indexes = [  # 设置 wid 和 worker_name 两个字段在数据库中创建索引
-            models.Index(fields=['wid']),
+            models.Index(fields=['uid']),
             models.Index(fields=['worker_name']),
         ]
 

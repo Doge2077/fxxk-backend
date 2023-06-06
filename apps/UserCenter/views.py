@@ -156,14 +156,14 @@ class loadUserInfo(APIView):
         Worker = check_has(hash_code)
         if Worker:
             Person["hash_code"] = hash_code
-            anaPerson["id"] = Worker.wid
+            anaPerson["id"] = Worker.uid
         else:
             Person["hash_code"] = hash_code
             # 将 Person 序列化
             Worker = Worker_Serializer(Person)
             # 插入一条 Worker 记录
             models.Worker.objects.create(**Worker.data)
-            anaPerson["id"] = check_has(hash_code).wid
+            anaPerson["id"] = check_has(hash_code).uid
 
         return Response(
             {
