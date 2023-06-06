@@ -93,8 +93,12 @@ class loadUserInfo(APIView):
             flag = idx(str)
             res = str[flag:]
             no_match = True
-            if check(str, Names) and len(res) <= 4 and len(str) <= 7 and not check(str, Noname):
-                Person["worker_name"] = str if flag == -1 else res
+            if check(str, Names) and len(res) <= 4 and 2 <= len(str) <= 7 and not check(str, Noname):
+                if flag == -1:
+                    Person["worker_name"] = str
+                else:
+                    if 2 <= len(res) <= 4:
+                        Person["worker_name"] = res
                 no_match = False
             if check(str, Sex):
                 Person["sex"] = str if flag == -1 else res
@@ -112,7 +116,7 @@ class loadUserInfo(APIView):
             if check(str, Location) and not check(str, Edu_school | Award) and len(str) <= 13:
                 Person["location"] = str if flag == -1 else res
                 no_match = False
-            if check(str, Edu_school) and len(str) <= 13:
+            if check(str, Edu_school) and len(str) <= 13 and not check(str, Noschool):
                 Person["edu_school"] = str if flag == -1 else res
                 no_match = False
             if check(str, Edu_level):
@@ -137,7 +141,7 @@ class loadUserInfo(APIView):
                 no_match = False
             if check(str, Skills) and not check(str, Award):
                 anaPerson["skills"] += str if flag == -1 else res
-                anaPerson["skills"] += "，" if anaPerson["skills"][-1] not in {':', '：'} else ""
+                # anaPerson["skills"] += "，" if anaPerson["skills"][-1] not in Flag else ""
                 no_match = False
             if check(str, JobHunt):
                 anaPerson["jobHunt"] = str if flag == -1 else res
@@ -156,14 +160,14 @@ class loadUserInfo(APIView):
         Worker = check_has(hash_code)
         if Worker:
             Person["hash_code"] = hash_code
-            anaPerson["id"] = Worker.uid
+            anaPerson["id"] = Worker.wid
         else:
             Person["hash_code"] = hash_code
             # 将 Person 序列化
             Worker = Worker_Serializer(Person)
             # 插入一条 Worker 记录
             models.Worker.objects.create(**Worker.data)
-            anaPerson["id"] = check_has(hash_code).uid
+            anaPerson["id"] = check_has(hash_code).wid
 
         return Response(
             {
