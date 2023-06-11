@@ -67,7 +67,10 @@ class Have(models.Model):
 class Job(models.Model):
     jid = models.AutoField(primary_key=True)
     jname = models.CharField(max_length=255, null=True)
-    jneed = models.CharField(max_length=255, null=True)
+    jneed_age = models.IntegerField(null=True)
+    jneed_edu = models.CharField(max_length=255, null=True)
+    jneed_year = models.CharField(max_length=255, null=True)
+    jneed_other = models.TextField(null=True)
 
     class Meta:
         app_label = 'UserCenter'

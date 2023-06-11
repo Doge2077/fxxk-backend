@@ -34,7 +34,7 @@ def idx(str):
     return -1
 
 
-def hash_user(str):
+def hash_build(str):
     Hash_tool = hashlib.sha256()
     Hash_tool.update(str.encode('utf-8'))
     return Hash_tool.hexdigest()
@@ -48,7 +48,16 @@ def hash_token(Person):
                  + Person["phone_number"] \
                  + Person["e_mail"] \
                  + Person["statue"]
-    return hash_user(hash_code)
+    return hash_build(hash_code)
+
+def hash_token(Work):
+    hash_code = ""
+    hash_code += Work["jname"] \
+                + Work["jneed_age"] \
+                + Work["jneed_edu"] \
+                + Work["jneed_other"] \
+                + Work["jneed_year"]
+    return hash_build(hash_code)
 
 
 def check_has(hash_code):
@@ -171,7 +180,14 @@ class loadUserInfo(APIView):
 
         return Response(
             {
-                "Person": Person,
+                "Person": Person,  # 返回信息
                 "anaPerson": anaPerson
             }
         )
+
+
+class addWorkNeed(APIView):
+    def post(self, request):
+        param = request.data
+
+        return Response(param)
