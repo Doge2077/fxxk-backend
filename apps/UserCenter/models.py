@@ -71,6 +71,7 @@ class Job(models.Model):
     jneed_edu = models.CharField(max_length=255, null=True)
     jneed_year = models.CharField(max_length=255, null=True)
     jneed_other = models.TextField(null=True)
+    hash_code = models.CharField(max_length=255, null=True)
 
     class Meta:
         app_label = 'UserCenter'
@@ -79,6 +80,7 @@ class Job(models.Model):
         indexes = [
             models.Index(fields=['jid']),
             models.Index(fields=['jname']),
+            models.Index(fields=['hash_code']),
         ]
 
     def __str__(self):

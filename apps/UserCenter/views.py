@@ -1,71 +1,8 @@
-import hashlib
-import re
-
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from UserCenter import models
-from UserCenter.serializer import Worker_Serializer
-from UserCenter.settings import *
-
-
-def check(str, tags):
-    for tag in tags:
-        if tag in str:
-            return True
-    if len(str) == 11 and tags == Phone_number:
-        for i in str:
-            if i < '0' or i > '9':
-                return False
-        return True
-    return False
-
-
-def birthdata(str):
-    if re.match(regex, str):
-        return True
-    return False
-
-
-def idx(str):
-    for k in range(0, len(str)):
-        if str[k] in {'：', ':'}:
-            return k + 1
-    return -1
-
-
-def hash_build(str):
-    Hash_tool = hashlib.sha256()
-    Hash_tool.update(str.encode('utf-8'))
-    return Hash_tool.hexdigest()
-
-
-def hash_token(Person):
-    hash_code = ""
-    hash_code += Person["worker_name"] \
-                 + Person["sex"] \
-                 + Person["age"] \
-                 + Person["phone_number"] \
-                 + Person["e_mail"] \
-                 + Person["statue"]
-    return hash_build(hash_code)
-
-def hash_token(Work):
-    hash_code = ""
-    hash_code += Work["jname"] \
-                + Work["jneed_age"] \
-                + Work["jneed_edu"] \
-                + Work["jneed_other"] \
-                + Work["jneed_year"]
-    return hash_build(hash_code)
-
-
-def check_has(hash_code):
-    return models.Worker.objects.filter(hash_code=hash_code).first()
-
-
-def check_registered(hash_code):
-    return models.User.objects.filter(hash_code=hash_code).first()
+from UserCenter.serializer import *
+from UserCenter.tools import *
 
 
 class loadUserInfo(APIView):
@@ -150,7 +87,6 @@ class loadUserInfo(APIView):
                 no_match = False
             if check(str, Skills) and not check(str, Award):
                 anaPerson["skills"] += str if flag == -1 else res
-                # anaPerson["skills"] += "，" if anaPerson["skills"][-1] not in Flag else ""
                 no_match = False
             if check(str, JobHunt):
                 anaPerson["jobHunt"] = str if flag == -1 else res
@@ -189,5 +125,22 @@ class loadUserInfo(APIView):
 class addWorkNeed(APIView):
     def post(self, request):
         param = request.data
-
-        return Response(param)
+        hash_code = hash_work(param)
+        Work = check_work(hash_code)
+        Job = {
+            "jname": param['jname'],
+            "jneed_age": param['jneed_age'],
+            "jneed_edu": param['jneed_edu'],
+            "jneed_year": param['jneed_year'],
+            "jneed_other": param['jneed_other'],
+            "hash_code": ""
+        }
+        if Work:
+            return Response({
+                "error": "The work has existed"
+            })
+        else:
+            Job['hash_code'] = hash_code
+            Job = Job_Serializer(Job)
+            models.Job.objects.create(**Job.data)
+            return Response(Job.data)
