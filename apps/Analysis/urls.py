@@ -2,5 +2,5 @@ from django.urls import path
 from Analysis import views
 
 urlpatterns = [
-    path('ans/', views.analysisFiles().as_view())
+    path("loadinfo/", views.loadInfo.as_view())
 ]

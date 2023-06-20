@@ -15,7 +15,7 @@ Sex = {"性别", "男", "女"}
 
 Age = {"生日", "出生", "年龄"}
 
-Phone_number = {"电话", "手机", "话:", "话：", "机:", "机："}
+Phone_number = {"电话", "手机", "话:", "话：", "机:", "机：", "联系"}
 
 E_mail = {"邮箱", "邮件", ".com", "箱:", "箱：", "@", ".cn"}
 
@@ -51,7 +51,7 @@ Flag = {":", "："}
 Charfxxk = {";", "；", "*", '.', '。', ';', '；', '，', ',',
             '、', '）', '（', '(', ')', '/', '|', '\\'}
 
-Noname = Sex | Location | Edu_school | Edu_level | Statue | Skills | Award | Action | Charfxxk
+Noname = Sex | Location | Edu_school | Edu_level | Statue | Skills | Award | Action | Charfxxk | Phone_number
 
 Noschool = Sex | Location | Statue | Skills| Award | Charfxxk
 

@@ -93,11 +93,9 @@ class loadUserInfo(APIView):
                 no_match = False
             if check(str, Award) and not check(str, Skills | Action):
                 anaPerson["award"] += str if flag == -1 else res
-                anaPerson["award"] += "，" if anaPerson["award"][-1] not in Flag else ""
                 no_match = False
             if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
                 anaPerson["self"] += str
-                anaPerson["self"] += "，" if anaPerson["self"][-1] not in Noneed else ""
 
         # 计算该 worker 的 hash_code
         hash_code = hash_token(Person)

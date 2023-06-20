@@ -28,6 +28,7 @@ class registerUser(APIView):
             uid = check_registered(hash_code).uid
             print(uid)
             return Response({
+                "hash_code": hash_code,
                 "success": "finished"
             })
 
