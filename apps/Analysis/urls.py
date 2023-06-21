@@ -2,5 +2,6 @@ from django.urls import path
 from Analysis import views
 
 urlpatterns = [
-    path("loadinfo/", views.loadInfo.as_view())
+    path("loadinfo/", views.loadOneInfo.as_view()),
+    path("loadinfos/", views.loadAllInfo.as_view())
 ]

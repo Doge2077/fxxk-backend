@@ -5,5 +5,4 @@ from Login import views
 urlpatterns = [
     path('register/', views.registerUser.as_view()),
     path('login/', views.loginUser.as_view()),
-    path('confirm/', views.confirmUser.as_view()),
 ]

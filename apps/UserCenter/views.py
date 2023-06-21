@@ -8,27 +8,9 @@ from UserCenter.tools import *
 class loadUserInfo(APIView):
     def post(self, request):
         # Worker 字段字典
-        Person = {
-            "worker_name": "",
-            "sex": "男",
-            "age": "",
-            "phone_number": "",
-            "e_mail": "",
-            "location": "",
-            "edu_school": "",
-            "edu_level": "",
-            "work_year": 0,
-            "statue": "群众",
-            "hash_code": ""
-        }
+        Person = tools_person
         # 用于分析的字段
-        anaPerson = {
-            "id": 0,
-            "skills": "",
-            "jobHunt": "",
-            "self": "",
-            "award": ""
-        }
+        anaPerson = tools_anaperson
 
         param = request.data
         # 匹配字段

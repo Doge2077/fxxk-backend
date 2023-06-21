@@ -6,6 +6,28 @@ from UserCenter import models
 from UserCenter.settings import *
 
 
+tools_person = {
+            "worker_name": "",
+            "sex": "男",
+            "age": "",
+            "phone_number": "",
+            "e_mail": "",
+            "location": "",
+            "edu_school": "",
+            "edu_level": "",
+            "work_year": 0,
+            "statue": "群众",
+            "hash_code": ""
+        }
+
+tools_anaperson = {
+            "id": 0,
+            "skills": "",
+            "jobHunt": "",
+            "self": "",
+            "award": ""
+        }
+
 def check(str, tags):
     for tag in tags:
         if tag in str:
