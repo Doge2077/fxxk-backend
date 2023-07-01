@@ -1,4 +1,11 @@
 from django.db import models
+import mongoengine
+
+mongoengine.connect(host='mongodb://127.0.0.1:27017/fxxk')
+
+
+class Item(mongoengine.Document):
+    meta = {'collection': 'Item', 'strict': False}
 
 
 class User(models.Model):
@@ -21,6 +28,7 @@ class User(models.Model):
 
 class Worker(models.Model):
     wid = models.AutoField(primary_key=True)
+    fileid = models.CharField(max_length=255, null=False)
     worker_name = models.CharField(max_length=255, null=False)
     sex = models.CharField(max_length=255, null=True)
     age = models.CharField(max_length=255, null=True)

@@ -12,11 +12,14 @@ class registerUser(APIView):
         username = request.data['username']
         password = request.data['password']
         hash_code = hash_user(username + password)
+
         Person = {
             "hash_code": ""
         }
 
+        # 检查是否注册过
         User = check_registered(hash_code)
+
         if User:
             return Response({
                 "error": "registered"
@@ -26,7 +29,6 @@ class registerUser(APIView):
             User = User_Serializer(Person)
             models.User.objects.create(**User.data)
             uid = check_registered(hash_code).uid
-            print(uid)
             return Response({
                 "token": hash_code,
                 "success": "finished"
@@ -38,10 +40,13 @@ class loginUser(APIView):
         username = request.data['username']
         password = request.data['password']
         hash_code = hash_user(username + password)
+        # 检查是否注册过
         User = check_registered(hash_code)
+
         if User:
             val = User.uid
             key = User.hash_code
+            # 存储到 redis
             cache.set(key, val)
             return Response({
                 "token": key,
@@ -53,16 +58,4 @@ class loginUser(APIView):
             })
 
 
-def confirmUser(token):
-    uid = cache.get(token)
-    if uid:
-        return uid
-    else:
-        User = check_registered(token)
-        if User:
-            val = User.uid
-            key = User.hash_code
-            cache.set(key, val)
-            return val
-        else:
-            return -1
+

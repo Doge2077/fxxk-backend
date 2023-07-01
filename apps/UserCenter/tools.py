@@ -2,31 +2,34 @@ import hashlib
 import re
 
 from bson import regex
+from django.core.cache import cache
+
 from UserCenter import models
 from UserCenter.settings import *
 
-
 tools_person = {
-            "worker_name": "",
-            "sex": "男",
-            "age": "",
-            "phone_number": "",
-            "e_mail": "",
-            "location": "",
-            "edu_school": "",
-            "edu_level": "",
-            "work_year": 0,
-            "statue": "群众",
-            "hash_code": ""
-        }
+    "fileid": "",
+    "worker_name": "",
+    "sex": "男",
+    "age": "",
+    "phone_number": "",
+    "e_mail": "",
+    "location": "",
+    "edu_school": "",
+    "edu_level": "",
+    "work_year": 0,
+    "statue": "群众",
+    "hash_code": ""
+}
 
 tools_anaperson = {
-            "id": 0,
-            "skills": "",
-            "jobHunt": "",
-            "self": "",
-            "award": ""
-        }
+    "id": 0,
+    "skills": "",
+    "jobHunt": "",
+    "self": "",
+    "award": ""
+}
+
 
 def check(str, tags):
     for tag in tags:
@@ -90,3 +93,18 @@ def check_work(hash_code):
 
 def check_registered(hash_code):
     return models.User.objects.filter(hash_code=hash_code).first()
+
+
+def confirmUser(token):
+    uid = cache.get(token)
+    if uid:
+        return uid
+    else:
+        User = check_registered(token)
+        if User:
+            val = User.uid
+            key = User.hash_code
+            cache.set(key, val)
+            return val
+        else:
+            return -1

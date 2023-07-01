@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from UserCenter.models import Item
 from UserCenter.serializer import *
 from UserCenter.tools import *
 
@@ -11,8 +12,16 @@ class loadUserInfo(APIView):
         Person = tools_person
         # 用于分析的字段
         anaPerson = tools_anaperson
+        token = request.data["token"]
 
-        param = request.data
+        userid = confirmUser(token)
+        if userid == -1:
+            return Response({
+                "error":"user token not existed"
+            })
+
+        Person["fileid"] = request.data["id"]
+        param = request.data["conList"]
         # 匹配字段
         for i in range(0, len(param)):
             str = param[i]["words"]
@@ -84,22 +93,38 @@ class loadUserInfo(APIView):
         # 查询是否存在 Worker
         Worker = check_has(hash_code)
         if Worker:
-            Person["hash_code"] = hash_code
-            anaPerson["id"] = Worker.wid
+            return Response({
+                "error": "worker existed"
+            })
         else:
             Person["hash_code"] = hash_code
             # 将 Person 序列化
             Worker = Worker_Serializer(Person)
             # 插入一条 Worker 记录
             models.Worker.objects.create(**Worker.data)
-            anaPerson["id"] = check_has(hash_code).wid
-
-        return Response(
-            {
-                "Person": Person,  # 返回信息
-                "anaPerson": anaPerson
+            wid = check_has(hash_code).wid
+            anaPerson["id"] = wid
+            have = {
+                "uid": userid,
+                "wid": wid
             }
-        )
+            # 将关系序列化
+            Have = Have_Serializer(have)
+            models.Have.objects.create(**Have.data)
+
+            # 将 anaPerson 存入 MongoDB
+        # item = Item(**anaPerson)
+        # item.save()
+
+        # return Response(
+        #     {
+        #         "Person": Person,  # 返回信息
+        #         "anaPerson": anaPerson
+        #     }
+        # )
+        return Response({
+            "success": "ok"
+        })
 
 
 class addWorkNeed(APIView):
@@ -108,11 +133,11 @@ class addWorkNeed(APIView):
         hash_code = hash_work(param)
         Work = check_work(hash_code)
         Job = {
-            "jname": param['jname'],
-            "jneed_age": param['jneed_age'],
-            "jneed_edu": param['jneed_edu'],
-            "jneed_year": param['jneed_year'],
-            "jneed_other": param['jneed_other'],
+            "jname": param['jname'],              # 工作名称
+            "jneed_age": param['jneed_age'],      # 年龄要求 25表示25岁以上 -25 表示25岁以下
+            "jneed_edu": param['jneed_edu'],      # 教育要求
+            "jneed_year": param['jneed_year'],    # 工作经验
+            "jneed_other": param['jneed_other'],  # 其他所有的要求
             "hash_code": ""
         }
         if Work:

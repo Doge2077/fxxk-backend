@@ -14,6 +14,12 @@ class Worker_Serializer(ModelSerializer):
         fields = "__all__"
 
 
+class Have_Serializer(ModelSerializer):
+    class Meta:
+        model = models.Have
+        fields = "__all__"
+
+
 class Job_Serializer(ModelSerializer):
     class Meta:
         model = models.Job
