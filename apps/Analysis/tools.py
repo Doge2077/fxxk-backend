@@ -16,3 +16,19 @@ def jobModel(job):
         "jneed_year": job.jneed_year,  # 工作经验
         "jneed_other": job.jneed_other,  # 其他所有的要求
     })
+
+def infoModel(worker):
+    return ({
+        "fileid": worker.fileid,
+        "worker_name": worker.worker_name,
+        "sex": worker.sex,
+        "age": worker.age,
+        "phone_number": worker.phone_number,
+        "e_mail": worker.e_mail,
+        "location": worker.location,
+        "edu_school": worker.edu_school,
+        "edu_level": worker.edu_level,
+        "work_year": worker.work_year,
+        "statue": worker.statue,
+        "hash_code": worker.hash_code
+    })
