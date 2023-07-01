@@ -48,7 +48,8 @@ class loadUserInfo(APIView):
                     Person["phone_number"] = str if flag == -1 else res
                 no_match = False
             if check(str, E_mail):
-                Person["e_mail"] = str if flag == -1 else res
+                if len(str) > 5:
+                    Person["e_mail"] = str if flag == -1 else res
                 no_match = False
             if check(str, Location) and not check(str, Edu_school | Award) and len(str) <= 13:
                 Person["location"] = str if flag == -1 else res

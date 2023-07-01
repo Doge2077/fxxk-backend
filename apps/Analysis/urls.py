@@ -3,6 +3,7 @@ from Analysis import views
 
 urlpatterns = [
     path("loadallinfo/", views.loadAllInfo.as_view()),
+    path("loadnameinfo/", views.loadNameInfo.as_view()),
     path("loadonejob/", views.loadOneJob.as_view()),
     path("loadalljob/", views.loadAllJob.as_view())
 ]

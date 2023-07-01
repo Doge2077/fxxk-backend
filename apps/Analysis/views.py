@@ -80,3 +80,29 @@ class loadAllJob(APIView):
             return Response({
                 "error": "no job exist"
             })
+
+
+class loadNameInfo(APIView):
+    def post(self, request):
+        param = request.data
+        token = param["token"]
+        key = param["key"]
+        userid = confirmUser(token)
+        if userid == -1:
+            return Response({
+                "error": "user token not existed"
+            })
+
+        record_workers = Worker.objects.filter(worker_name__contains=key)
+        workers = []
+        for worker in record_workers:
+            workers.append(workerModel(worker))
+
+        if len(workers) > 0:
+            return Response({
+                "content": workers
+            })
+        else:
+            return Response({
+                "error": "worker not existed"
+            })

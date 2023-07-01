@@ -51,8 +51,10 @@ Flag = {":", "："}
 Charfxxk = {";", "；", "*", '.', '。', ';', '；', '，', ',',
             '、', '）', '（', '(', ')', '/', '|', '\\'}
 
+Shit = {"大学生", "党"}
+
 Noname = Sex | Location | Edu_school | Edu_level | Statue | Skills | Award | Action | Charfxxk | Phone_number
 
-Noschool = Sex | Location | Statue | Skills| Award | Charfxxk
+Noschool = Sex | Location | Statue | Skills| Award | Charfxxk | Shit
 
 regex = r"^(19\d{2}|20\d{2}|2100)\.(0?[1-9]|1[012])\.(0?[1-9]|[12][0-9]|3[01])$"
