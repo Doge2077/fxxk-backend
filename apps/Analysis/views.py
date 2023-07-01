@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Analysis.tools import workerModel
-from UserCenter.models import Have, Worker
+from Analysis.tools import workerModel, jobModel
+from UserCenter.models import Have, Worker, Job
 from UserCenter.tools import confirmUser
 
 
@@ -11,7 +11,6 @@ class loadAllInfo(APIView):
         param = request.data
         token = param["token"]
         page = param["page"]
-
         userid = confirmUser(token)
         if userid == -1:
             return Response({
@@ -35,3 +34,49 @@ class loadAllInfo(APIView):
         return Response({
             "success": sliced_workers
         })
+
+class loadOneJob(APIView):
+    def post(self, request):
+        param = request.data
+        token = param["token"]
+        id = param["id"]
+        userid = confirmUser(token)
+        if userid == -1:
+            return Response({
+                "error": "user token not existed"
+            })
+
+        record_job = Job.objects.filter(jid=id)
+        job = jobModel(record_job)
+        if job:
+            return Response(job)
+        else:
+            return Response({
+                "error": "job not found"
+            })
+
+class loadAllJob(APIView):
+    def post(self, request):
+        param = request.data
+        token = param["token"]
+        userid = confirmUser(token)
+        if userid == -1:
+            return Response({
+                "error": "user token not existed"
+            })
+        record_jobs = Job.objects.all()
+        jobs = []
+        for job in record_jobs:
+            jobs.append({
+                "id": job.jid,
+                "job_name": job.jname
+            })
+
+        if len(jobs) != 0:
+            return Response({
+                "content": jobs
+            })
+        else:
+            return Response({
+                "error": "no job exist"
+            })

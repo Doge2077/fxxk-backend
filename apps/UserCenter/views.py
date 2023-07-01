@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from UserCenter.models import Item
+from UserCenter.models import mycol
 from UserCenter.serializer import *
 from UserCenter.tools import *
 
@@ -17,7 +17,7 @@ class loadUserInfo(APIView):
         userid = confirmUser(token)
         if userid == -1:
             return Response({
-                "error":"user token not existed"
+                "error": "user token not existed"
             })
 
         Person["fileid"] = request.data["id"]
@@ -111,10 +111,8 @@ class loadUserInfo(APIView):
             # 将关系序列化
             Have = Have_Serializer(have)
             models.Have.objects.create(**Have.data)
-
             # 将 anaPerson 存入 MongoDB
-        # item = Item(**anaPerson)
-        # item.save()
+            mycol.insert_one(anaPerson)
 
         # return Response(
         #     {
@@ -133,10 +131,10 @@ class addWorkNeed(APIView):
         hash_code = hash_work(param)
         Work = check_work(hash_code)
         Job = {
-            "jname": param['jname'],              # 工作名称
-            "jneed_age": param['jneed_age'],      # 年龄要求 25表示25岁以上 -25 表示25岁以下
-            "jneed_edu": param['jneed_edu'],      # 教育要求
-            "jneed_year": param['jneed_year'],    # 工作经验
+            "jname": param['jname'],  # 工作名称
+            "jneed_age": param['jneed_age'],  # 年龄要求 25表示25岁以上 -25 表示25岁以下
+            "jneed_edu": param['jneed_edu'],  # 教育要求
+            "jneed_year": param['jneed_year'],  # 工作经验
             "jneed_other": param['jneed_other'],  # 其他所有的要求
             "hash_code": ""
         }

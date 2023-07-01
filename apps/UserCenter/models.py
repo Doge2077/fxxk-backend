@@ -1,11 +1,9 @@
 from django.db import models
-import mongoengine
+import pymongo
 
-mongoengine.connect(host='mongodb://127.0.0.1:27017/fxxk')
-
-
-class Item(mongoengine.Document):
-    meta = {'collection': 'Item', 'strict': False}
+myclient = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
+mydb = myclient['fxxk']
+mycol = mydb['Item']
 
 
 class User(models.Model):
