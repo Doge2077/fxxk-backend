@@ -6,5 +6,6 @@ urlpatterns = [
     path("loadnameinfo/", views.loadNameInfo.as_view()),
     path("loadonejob/", views.loadOneJob.as_view()),
     path("loadalljob/", views.loadAllJob.as_view()),
-    path("loadidinfo/", views.loadIdInfo.as_view())
+    path("loadidinfo/", views.loadIdInfo.as_view()),
+    path("loadscore/", views.loadScore.as_view())
 ]

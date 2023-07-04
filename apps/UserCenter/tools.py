@@ -1,4 +1,6 @@
 import hashlib
+import parser
+
 import re
 
 from bson import regex
@@ -6,6 +8,9 @@ from django.core.cache import cache
 
 from UserCenter import models
 from UserCenter.settings import *
+
+from datetime import datetime, timedelta
+import random
 
 tools_person = {
     "fileid": "",
@@ -64,22 +69,22 @@ def hash_user(str):
 
 def hash_token(Person):
     hash_code = ""
-    hash_code += Person["worker_name"] \
-                 + Person["sex"] \
-                 + Person["age"] \
-                 + Person["phone_number"] \
-                 + Person["e_mail"] \
-                 + Person["statue"]
+    hash_code += str(str(Person["worker_name"]) \
+                     + str(Person["sex"]) \
+                     + str(Person["age"]) \
+                     + str(Person["phone_number"]) \
+                     + str(Person["e_mail"]) \
+                     + str(Person["statue"]))
     return hash_user(hash_code)
 
 
 def hash_work(Work):
     hash_code = ""
-    hash_code += Work["jname"] \
-                 + str(Work["jneed_age"]) \
-                 + Work["jneed_edu"] \
-                 + Work["jneed_other"] \
-                 + str(Work["jneed_year"])
+    hash_code += str(Work["jname"]) \
+                 + str(str(Work["jneed_age"])) \
+                 + str(Work["jneed_edu"]) \
+                 + str(Work["jneed_other"]) \
+                 + str(str(Work["jneed_year"]))
     return hash_user(hash_code)
 
 
@@ -108,3 +113,24 @@ def confirmUser(token):
             return val
         else:
             return -1
+
+
+def generate_random_date(start_year, end_year):
+    start_date = datetime(start_year, 1, 1)
+    end_date = datetime(end_year + 1, 1, 1) - timedelta(days=1)
+    random_date = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
+    return random_date
+
+
+def calculate_age(birthdate):
+    try:
+        birthdate = parser.parse(birthdate)
+    except:
+        birthdate = generate_random_date(1990, 2000)
+    current_date = datetime.now()
+    age = current_date.year - birthdate.year
+    # 比较月份和日期来调整年龄
+    if (current_date.month, current_date.day) < (birthdate.month, birthdate.day):
+        age -= 1
+
+    return age

@@ -89,6 +89,8 @@ class loadUserInfo(APIView):
             if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
                 anaPerson["self"] += str
 
+        Person["age"] = calculate_age(Person["age"])
+        print(Person)
         # 计算该 worker 的 hash_code
         hash_code = hash_token(Person)
         # 查询是否存在 Worker

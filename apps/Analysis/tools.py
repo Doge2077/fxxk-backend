@@ -1,12 +1,16 @@
+import random
+
+
 def workerModel(worker):
     return ({
-        "id":worker.fileid,
-        "name":worker.worker_name,
-        "sex":worker.sex,
-        "age":worker.age,
-        "education":worker.edu_level,
-        "college":worker.edu_school
+        "id": worker.fileid,
+        "name": worker.worker_name,
+        "sex": worker.sex,
+        "age": worker.age,
+        "education": worker.edu_level,
+        "college": worker.edu_school
     })
+
 
 def jobModel(job):
     return ({
@@ -16,6 +20,7 @@ def jobModel(job):
         "jneed_year": job.jneed_year,  # 工作经验
         "jneed_other": job.jneed_other,  # 其他所有的要求
     })
+
 
 def infoModel(worker):
     return ({
@@ -32,3 +37,21 @@ def infoModel(worker):
         "statue": worker.statue,
         "hash_code": worker.hash_code
     })
+
+
+def addScore(score, a, b):
+    return score + round(random.uniform(a, b), 2)
+
+
+def getScore(worker):
+    score = 0.0
+    if len(worker.worker_name) != 0: addScore(score, 15, 20)
+    if len(worker.sex) != 0: addScore(score, 5, 10)
+    if len(worker.age) != 0: addScore(score, 5, 10)
+    if len(worker.phone_number) != 0: addScore(score, 5, 10)
+    if len(worker.e_mail) != 0: addScore(score, 5, 10)
+    if len(worker.location) != 0: addScore(score, 5, 10)
+    if len(worker.edu_school) != 0: addScore(score, 5, 10)
+    if len(worker.edu_level) != 0: addScore(score, 5, 10)
+    if worker.work_year > 0: addScore(score, 5, 10)
+    return score

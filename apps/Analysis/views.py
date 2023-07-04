@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Analysis.tools import workerModel, jobModel, infoModel
+from Analysis.tools import workerModel, jobModel, infoModel, getScore
 from UserCenter.models import Have, Worker, Job
 from UserCenter.tools import confirmUser, tools_person
 
@@ -53,6 +53,7 @@ class loadAllInfo(APIView):
                 "error": "workers not existed"
             })
 
+
 class loadOneJob(APIView):
     def post(self, request):
         param = request.data
@@ -64,14 +65,17 @@ class loadOneJob(APIView):
                 "error": "user token not existed"
             })
 
-        record_job = Job.objects.filter(jid=id)
-        job = jobModel(record_job)
-        if job:
+        record_job = Job.objects.filter(jid=id).first()
+        if record_job:
+            job = jobModel(record_job)
             return Response(job)
         else:
             return Response({
                 "error": "job not found"
             })
+
+
+
 
 class loadAllJob(APIView):
     def post(self, request):
@@ -125,6 +129,7 @@ class loadNameInfo(APIView):
                 "error": "worker not existed"
             })
 
+
 class loadIdInfo(APIView):
     def post(self, request):
         param = request.data
@@ -133,10 +138,9 @@ class loadIdInfo(APIView):
 
         workers = []
         for workerid in workerids:
-            worker = Worker.objects.filter(wid=workerid).first()
+            worker = Worker.objects.filter(fileid=workerid).first()
             if worker:
                 workers.append(infoModel(worker))
-
 
         per_page = 10  # 每页显示的元素数量
         page_number = page  # 假设当前页码为
@@ -152,3 +156,23 @@ class loadIdInfo(APIView):
             return Response({
                 "error": "workers not existed"
             })
+
+
+class loadScore(APIView):
+    def post(self, request):
+        score = 0.0
+        param = request.data
+        token = param["token"]
+        fileid = param["id"]
+        userid = confirmUser(token)
+        if userid == -1:
+            return Response({
+                "error": "user token not existed"
+            })
+
+        worker = Worker.objects.filter(fileid=fileid)
+        score = getScore(worker)
+
+        return Response({
+            "score": score
+        })
