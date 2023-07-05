@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from UserCenter.models import mycol
 from UserCenter.serializer import *
 from UserCenter.tools import *
@@ -22,6 +21,12 @@ class loadUserInfo(APIView):
 
         Person["fileid"] = request.data["id"]
         param = request.data["conList"]
+
+        flag_bir = False
+        flag_work = False
+        flag_now = False
+        work_years = []
+
         # 匹配字段
         for i in range(0, len(param)):
             str = param[i]["words"]
@@ -43,6 +48,7 @@ class loadUserInfo(APIView):
             if check(str, Age) or birthdata(str):
                 Person["age"] = str if flag == -1 else res
                 no_match = False
+                continue
             if check(str, Phone_number):
                 if len(str) >= 11:
                     Person["phone_number"] = str if flag == -1 else res
@@ -88,9 +94,25 @@ class loadUserInfo(APIView):
                 no_match = False
             if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
                 anaPerson["self"] += str
+            if check(str, workFlag): flag_work = True
+            if "至今" in str: flag_now = True
+            if flag_work:
+                dates = extract_dates(str)
+                work_years.extend(dates)
 
+        # 对所有日期从小到大排序
+        work_years.sort(key=lambda x: tuple(map(int, x.split('.'))))
+        # 添加至今的日期
+        if flag_now:
+            work_years.append(datetime.now().strftime("%Y.%m.%d"))
+        # 计算工作经历
+        work_year = calculate_work_year(work_years)
+        if work_year > 10:
+            if Person["edu_level"] == "本科": work_year -= 4
+        Person["work_year"] = work_year
+        # 计算年龄
+        print(Person["age"])
         Person["age"] = calculate_age(Person["age"])
-        print(Person)
         # 计算该 worker 的 hash_code
         hash_code = hash_token(Person)
         # 查询是否存在 Worker

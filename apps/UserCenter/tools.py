@@ -1,7 +1,6 @@
 import hashlib
 import parser
-
-import re
+from math import ceil
 
 from bson import regex
 from django.core.cache import cache
@@ -12,11 +11,14 @@ from UserCenter.settings import *
 from datetime import datetime, timedelta
 import random
 
+from datetime import datetime
+import re
+
 tools_person = {
     "fileid": "",
     "worker_name": "",
     "sex": "男",
-    "age": "",
+    "age": None,
     "phone_number": "",
     "e_mail": "",
     "location": "",
@@ -122,11 +124,61 @@ def generate_random_date(start_year, end_year):
     return random_date
 
 
+def extract_dates(text):
+    pattern = r"\b(\d{4})[年.-](\d{1,2})[月.-]?(\d{1,2})?[日号]?\b"
+    dates = sorted(
+        [
+            f"{year}.{month.zfill(2)}.{day.zfill(2) if day else '01'}"
+            for year, month, day in re.findall(pattern, text)
+            if is_valid_date(year, month, day)
+        ]
+    )
+    return dates
+
+
+def is_valid_date(year, month, day):
+    try:
+        date_str = f"{year}-{month.zfill(2)}-{day.zfill(2) if day else '01'}"
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+
+def calculate_year(dates):
+    sum_diff = 0
+    for i in range(0, len(dates) - 1, 2):
+        date1 = datetime.strptime(dates[i], "%Y.%m.%d")
+        date2 = datetime.strptime(dates[i + 1], "%Y.%m.%d")
+        diff = (date2 - date1).days
+        sum_diff += diff
+    return ceil(sum_diff / 365)
+
+
+def calculate_work_year(work_years):
+    size = len(work_years)
+    year = 0
+    if size == 0:
+        return random.randint(0, 10)
+    if size % 2 == 0:
+        year = calculate_year(work_years)
+    else:
+        year1 = calculate_year(work_years[1:])
+        year2 = calculate_year(work_years[:-1])
+        year = ceil((year1 + year2) / 2)
+    # year = calculate_year(work_years)
+    return year
+
+
 def calculate_age(birthdate):
     try:
         birthdate = parser.parse(birthdate)
     except:
-        birthdate = generate_random_date(1990, 2000)
+        age = re.findall(r'\d+', str(birthdate))
+        if len(age) == 1:
+            return age[0]
+        else:
+            birthdate = generate_random_date(1990, 2000)
     current_date = datetime.now()
     age = current_date.year - birthdate.year
     # 比较月份和日期来调整年龄
