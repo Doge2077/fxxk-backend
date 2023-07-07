@@ -22,7 +22,7 @@ class loadUserInfo(APIView):
         Person["fileid"] = request.data["id"]
         param = request.data["conList"]
 
-        flag_bir = False
+        flag_num = False
         flag_work = False
         flag_now = False
         work_years = []
@@ -41,18 +41,25 @@ class loadUserInfo(APIView):
                 else:
                     if 2 <= len(res) <= 4:
                         Person["worker_name"] = res
+                # 检查姓名
+                Person["worker_name"] = check_worker_name(Person["worker_name"])
                 no_match = False
             if check(str, Sex):
                 Person["sex"] = str if flag == -1 else res
                 no_match = False
             if check(str, Age) or birthdata(str):
                 Person["age"] = str if flag == -1 else res
+                Person["age"] = find_numbers(Person["age"])
                 no_match = False
                 continue
-            if check(str, Phone_number):
-                if len(str) >= 11:
-                    Person["phone_number"] = str if flag == -1 else res
-                no_match = False
+            if flag_num == False:
+                if check(str, Phone_number) and not check(str, Edu_school | Edu_level):
+                    if len(str) >= 7:
+                        Person["phone_number"] = str if flag == -1 else res
+                        # 检查 phone_number 是否符合格式
+                        Person["phone_number"] = check_phone(Person["phone_number"])
+                        flag_num = good_phone(Person["phone_number"])
+                    no_match = False
             if check(str, E_mail):
                 if len(str) > 5:
                     Person["e_mail"] = str if flag == -1 else res
@@ -99,7 +106,11 @@ class loadUserInfo(APIView):
             if flag_work:
                 dates = extract_dates(str)
                 work_years.extend(dates)
-
+        print(Person)
+        # 检查 worker_name 是否符合格式
+        Person["worker_name"] = check_name(Person["worker_name"], param)
+        # 检查 sex 是否符合格式
+        Person["sex"] = check_sex(Person["sex"])
         # 对所有日期从小到大排序
         work_years.sort(key=lambda x: tuple(map(int, x.split('.'))))
         # 添加至今的日期
@@ -111,7 +122,6 @@ class loadUserInfo(APIView):
             if Person["edu_level"] == "本科": work_year -= 4
         Person["work_year"] = work_year
         # 计算年龄
-        print(Person["age"])
         Person["age"] = calculate_age(Person["age"])
         # 计算该 worker 的 hash_code
         hash_code = hash_token(Person)

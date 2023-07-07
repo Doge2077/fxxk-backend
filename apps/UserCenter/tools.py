@@ -102,6 +102,57 @@ def check_registered(hash_code):
     return models.User.objects.filter(hash_code=hash_code).first()
 
 
+def get_chinese(text):
+    pattern = r'[^\u4e00-\u9fa5]'  # 匹配非中文字符
+    match = re.search(pattern, text)
+    if match is not None:
+        return text[:match.start()]
+    else:
+        return ""
+
+
+def check_worker_name(name):
+    worker_name = get_chinese(name)
+    if worker_name == "":
+        return name
+    else:
+        return worker_name
+
+
+def check_sex(sex):
+    if "男" in sex:
+        return "男"
+    else:
+        return "女"
+
+
+def good_phone(numbers):
+    for number in numbers:
+        if '0' <= number <= '9':
+            continue
+        else:
+            return False
+    return True
+
+
+def check_phone(numbers):
+    if good_phone(numbers):
+        return numbers
+    phone_numbers = []
+    res = ""
+    for number in numbers:
+        if '0' <= number <= '9':
+            res += number
+        else:
+            if len(res) > 0:
+                phone_numbers.append(res)
+                res = ""
+    if len(phone_numbers) > 0:
+        return max(phone_numbers, key=len)
+    else:
+        return numbers
+
+
 def confirmUser(token):
     uid = cache.get(token)
     if uid:
@@ -170,13 +221,29 @@ def calculate_work_year(work_years):
     return year
 
 
+def find_numbers(numbers):
+    nums = []
+    res = 0
+    for char in str(numbers):
+        if '0' <= char <= '9':
+            res = res * 10 + int(char)
+        else:
+            if res != 0:
+                nums.append(str(res))
+                res = 0
+    if len(nums) != 0:
+        return str(nums[0])
+    else:
+        return None
+
+
 def calculate_age(birthdate):
     try:
         birthdate = parser.parse(birthdate)
     except:
-        age = re.findall(r'\d+', str(birthdate))
-        if len(age) == 1:
-            return age[0]
+        age = find_numbers(birthdate)
+        if age != None:
+            return age
         else:
             birthdate = generate_random_date(1990, 2000)
     current_date = datetime.now()
@@ -186,3 +253,17 @@ def calculate_age(birthdate):
         age -= 1
 
     return age
+
+
+def check_name(name, param):
+    for char in name:
+        if '\u4e00' <= char <= '\u9fff':
+            continue
+        else:
+            for i in range(0, len(param)):
+                str = param[i]["words"]
+                worker_name = check_worker_name(str)
+                if check(str, Names) and worker_name != "":
+                    return worker_name
+            return name
+    return name
