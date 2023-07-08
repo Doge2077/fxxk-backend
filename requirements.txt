@@ -1,0 +1,17 @@
+asgiref @ file:///home/conda/feedstock_root/build_artifacts/asgiref_1671589829431/work
+async-timeout==4.0.2
+cffi==1.15.1
+cryptography==41.0.1
+Django==3.2
+django-redis==5.2.0
+djangorestframework==3.14.0
+dnspython==2.3.0
+mongoengine==0.27.0
+pycparser==2.21
+pymongo==4.3.3
+PyMySQL==1.0.3
+pytz==2023.3
+redis==4.5.5
+sqlparse @ file:///home/conda/feedstock_root/build_artifacts/sqlparse_1681817562700/work
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1678559861143/work
+tzdata==2023.3
