@@ -106,7 +106,6 @@ class loadUserInfo(APIView):
             if flag_work:
                 dates = extract_dates(str)
                 work_years.extend(dates)
-        print(Person)
         # 检查 worker_name 是否符合格式
         Person["worker_name"] = check_name(Person["worker_name"], param)
         # 检查 sex 是否符合格式
