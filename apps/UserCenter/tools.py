@@ -30,6 +30,7 @@ tools_person = {
 }
 
 tools_anaperson = {
+    "_id": "",
     "id": 0,
     "skills": "",
     "jobHunt": "",

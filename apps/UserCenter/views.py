@@ -138,6 +138,7 @@ class loadUserInfo(APIView):
             models.Worker.objects.create(**Worker.data)
             wid = check_has(hash_code).wid
             anaPerson["id"] = wid
+            anaPerson["_id"] = hash_code
             have = {
                 "uid": userid,
                 "wid": wid
