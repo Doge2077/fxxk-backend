@@ -39,6 +39,32 @@ tools_anaperson = {
 }
 
 
+def newPerson(p):
+    p["fileid"] = ""
+    p["worker_name"] = ""
+    p["sex"] = "男"
+    p["age"] = None
+    p["phone_number"] = ""
+    p["email"] = ""
+    p["location"] = ""
+    p["edu_school"] = ""
+    p["edu_level"] = ""
+    p["statue"] = "群众"
+    p["work_year"] = 0
+    p["hash_code"] = ""
+    return p
+
+
+def newAnaPerson(p):
+    p["_id"] = ""
+    p["id"] = 0
+    p["self"] = ""
+    p["award"] = ""
+    p["skills"] = ""
+    p["jobHunt"] = ""
+    return p
+
+
 def check(str, tags):
     for tag in tags:
         if tag in str:
@@ -121,10 +147,10 @@ def check_worker_name(name):
 
 
 def check_sex(sex):
-    if "男" in sex:
-        return "男"
-    else:
+    if "女" in sex:
         return "女"
+    else:
+        return "男"
 
 
 def good_phone(numbers):

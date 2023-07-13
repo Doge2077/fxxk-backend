@@ -9,8 +9,11 @@ class loadUserInfo(APIView):
     def post(self, request):
         # Worker 字段字典
         Person = tools_person
+        Person = newPerson(Person)
+
         # 用于分析的字段
         anaPerson = tools_anaperson
+        anaPerson = newAnaPerson(anaPerson)
         token = request.data["token"]
 
         userid = confirmUser(token)
@@ -34,7 +37,6 @@ class loadUserInfo(APIView):
                 Person["worker_name"] = str
             flag = idx(str)
             res = str[flag:]
-            no_match = True
             if check(str, Names) and len(res) <= 4 and 2 <= len(str) <= 7 and not check(str, Noname):
                 if flag == -1:
                     Person["worker_name"] = str
@@ -43,14 +45,13 @@ class loadUserInfo(APIView):
                         Person["worker_name"] = res
                 # 检查姓名
                 Person["worker_name"] = check_worker_name(Person["worker_name"])
-                no_match = False
             if check(str, Sex):
-                Person["sex"] = str if flag == -1 else res
-                no_match = False
+                Person["sex"] = check_sex(str)
+                
             if check(str, Age) or birthdata(str):
                 Person["age"] = str if flag == -1 else res
                 Person["age"] = find_numbers(Person["age"])
-                no_match = False
+                
                 continue
             if flag_num == False:
                 if check(str, Phone_number) and not check(str, Edu_school | Edu_level):
@@ -59,17 +60,17 @@ class loadUserInfo(APIView):
                         # 检查 phone_number 是否符合格式
                         Person["phone_number"] = check_phone(Person["phone_number"])
                         flag_num = good_phone(Person["phone_number"])
-                    no_match = False
+                    
             if check(str, E_mail):
                 if len(str) > 5:
                     Person["e_mail"] = str if flag == -1 else res
-                no_match = False
+                
             if check(str, Location) and not check(str, Edu_school | Award) and len(str) <= 13:
                 Person["location"] = str if flag == -1 else res
-                no_match = False
+                
             if check(str, Edu_school) and len(str) <= 13 and not check(str, Noschool):
                 Person["edu_school"] = str if flag == -1 else res
-                no_match = False
+                
             if check(str, Edu_level):
                 str = str if flag == -1 else res
                 if len(str) > 2:
@@ -80,7 +81,7 @@ class loadUserInfo(APIView):
                                 str = "大专"
                             break
                 Person["edu_level"] = str
-                no_match = False
+                
             if check(str, Statue):
                 str = str if flag == -1 else res
                 if len(str) > 2:
@@ -89,17 +90,17 @@ class loadUserInfo(APIView):
                             str = tag
                             break
                 Person["statue"] = str
-                no_match = False
+                
             if check(str, Skills) and not check(str, Award):
                 anaPerson["skills"] += str if flag == -1 else res
-                no_match = False
+                
             if check(str, JobHunt):
                 anaPerson["jobHunt"] = str if flag == -1 else res
-                no_match = False
+                
             if check(str, Award) and not check(str, Skills | Action):
                 anaPerson["award"] += str if flag == -1 else res
-                no_match = False
-            if check(str, Action) or no_match and len(str) >= 3 and check(str, Flag) == False:
+                
+            if check(str, Action) and len(str) >= 3 and check(str, Flag) == False:
                 anaPerson["self"] += str
             if check(str, workFlag): flag_work = True
             if "至今" in str: flag_now = True
@@ -108,8 +109,6 @@ class loadUserInfo(APIView):
                 work_years.extend(dates)
         # 检查 worker_name 是否符合格式
         Person["worker_name"] = check_name(Person["worker_name"], param)
-        # 检查 sex 是否符合格式
-        Person["sex"] = check_sex(Person["sex"])
         # 对所有日期从小到大排序
         work_years.sort(key=lambda x: tuple(map(int, x.split('.'))))
         # 添加至今的日期
@@ -149,12 +148,6 @@ class loadUserInfo(APIView):
             # 将 anaPerson 存入 MongoDB
             mycol.insert_one(anaPerson)
 
-        # return Response(
-        #     {
-        #         "Person": Person,  # 返回信息
-        #         "anaPerson": anaPerson
-        #     }
-        # )
         return Response({
             "success": "ok"
         })
